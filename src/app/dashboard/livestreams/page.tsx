@@ -25,7 +25,6 @@ export default function LivestreamsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
     }, 800);
@@ -33,7 +32,7 @@ export default function LivestreamsPage() {
 
   useEffect(() => {
     if (searchTerm) {
-      const filtered = livestreams.filter(livestream => 
+      const filtered = livestreams.filter(livestream =>
         livestream.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredLivestreams(filtered);
@@ -70,7 +69,7 @@ export default function LivestreamsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Livestreams</h1>
-        
+
         <form onSubmit={handleSearch} className="relative max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -94,7 +93,7 @@ export default function LivestreamsPage() {
           )}
         </form>
       </div>
-      
+
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="all">All Livestreams</TabsTrigger>
@@ -103,20 +102,20 @@ export default function LivestreamsPage() {
           </TabsTrigger>
           <TabsTrigger value="ended">Ended</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="all">
           <LivestreamsTable livestreams={filteredLivestreams} />
         </TabsContent>
-        
+
         <TabsContent value="active">
-          <LivestreamsTable 
-            livestreams={filteredLivestreams.filter(stream => stream.isActive)} 
+          <LivestreamsTable
+            livestreams={filteredLivestreams.filter(stream => stream.isActive)}
           />
         </TabsContent>
-        
+
         <TabsContent value="ended">
-          <LivestreamsTable 
-            livestreams={filteredLivestreams.filter(stream => !stream.isActive)} 
+          <LivestreamsTable
+            livestreams={filteredLivestreams.filter(stream => !stream.isActive)}
           />
         </TabsContent>
       </Tabs>
@@ -132,11 +131,11 @@ function LivestreamsTable({ livestreams }: LivestreamsTableProps) {
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    
+
     if (hours === 0) {
       return `${remainingMinutes}m`;
     }
-    
+
     return `${hours}h ${remainingMinutes}m`;
   };
 
@@ -163,20 +162,20 @@ function LivestreamsTable({ livestreams }: LivestreamsTableProps) {
           ) : (
             livestreams.map((livestream) => {
               const user = getUserById(livestream.userId);
-              
+
               return (
                 <TableRow key={livestream.id} className="group">
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
                       <div className="relative flex-shrink-0 h-10 w-16 overflow-hidden rounded">
-                        <img 
-                          src={livestream.thumbnailUrl} 
+                        <img
+                          src={livestream.thumbnailUrl}
                           alt={livestream.title}
                           className="h-full w-full object-cover"
                         />
                       </div>
                       <div>
-                        <Link 
+                        <Link
                           href={`/dashboard/users/${livestream.userId}`}
                           className="font-medium hover:underline line-clamp-1"
                         >
@@ -187,7 +186,7 @@ function LivestreamsTable({ livestreams }: LivestreamsTableProps) {
                   </TableCell>
                   <TableCell>
                     {user && (
-                      <Link 
+                      <Link
                         href={`/dashboard/users/${user.id}`}
                         className="flex items-center gap-2 hover:underline"
                       >
