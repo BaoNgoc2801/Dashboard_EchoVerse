@@ -13,12 +13,13 @@ import {
 } from '@/components/ui/table';
 
 import { UserSearch } from '@/components/dashboard/user-search';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { fetchAllUsers, UserItem, deleteUser } from '@/service/user.service';
+import { fetchAllUsers, UserItem } from '@/service/user.service';
 import { EditRoleModal } from '@/components/modals/edit-role';
 import { DeleteUserModal } from '@/components/modals/delete-user';
+import { CreateRoleModal } from '@/components/modals/create-role';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
@@ -27,7 +28,8 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [editUserId, setEditUserId] = useState<number | null>(null);
-  const [deleteUserInfo, setDeleteUserInfo] = useState<UserItem | null>(null);
+  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
+  const [showCreateRole, setShowCreateRole] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,19 +60,8 @@ export default function UsersPage() {
     }
   }, [searchTerm, users]);
 
-  const handleDeleteUser = async (userId: number) => {
-    const success = await deleteUser(userId);
-    if (!success) {
-      toast({
-        title: "Failed to delete user",
-        description: "An error occurred while trying to delete the user.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleDeleteUser = (userId: number) => {
     const updatedUsers = filteredUsers.filter(user => user.id !== userId);
-    setUsers(prev => prev.filter(user => user.id !== userId));
     setFilteredUsers(updatedUsers);
 
     toast({
@@ -102,7 +93,12 @@ export default function UsersPage() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Users</h1>
-          <UserSearch onSearch={setSearchTerm} />
+          <div className="flex gap-2">
+            <UserSearch onSearch={setSearchTerm} />
+            <Button onClick={() => setShowCreateRole(true)}>
+              <Plus className="mr-2" size={16} /> Create Role
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
@@ -114,7 +110,7 @@ export default function UsersPage() {
             <UsersTable
                 users={filteredUsers}
                 onEditUser={setEditUserId}
-                onDeleteUser={(user) => setDeleteUserInfo(user)}
+                onDeleteUser={setDeleteUserId}
             />
           </TabsContent>
         </Tabs>
@@ -126,16 +122,20 @@ export default function UsersPage() {
             />
         )}
 
-        {deleteUserInfo && (
+        {deleteUserId !== null && (
             <DeleteUserModal
                 open={true}
-                username={deleteUserInfo.username}
-                onClose={() => setDeleteUserInfo(null)}
-                onConfirm={async () => {
-                  await handleDeleteUser(deleteUserInfo.id);
-                  setDeleteUserInfo(null);
+                username={filteredUsers.find(u => u.id === deleteUserId)?.username || ''}
+                onClose={() => setDeleteUserId(null)}
+                onConfirm={() => {
+                  handleDeleteUser(deleteUserId);
+                  setDeleteUserId(null);
                 }}
             />
+        )}
+
+        {showCreateRole && (
+            <CreateRoleModal onClose={() => setShowCreateRole(false)} />
         )}
       </div>
   );
@@ -144,7 +144,7 @@ export default function UsersPage() {
 interface UsersTableProps {
   users: UserItem[];
   onEditUser: (userId: number) => void;
-  onDeleteUser: (user: UserItem) => void;
+  onDeleteUser: (userId: number) => void;
 }
 
 function UsersTable({ users, onEditUser, onDeleteUser }: UsersTableProps) {
@@ -189,7 +189,7 @@ function UsersTable({ users, onEditUser, onDeleteUser }: UsersTableProps) {
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onDeleteUser(user)}
+                            onClick={() => onDeleteUser(user.id)}
                         >
                           <Trash2 size={16} />
                         </Button>
