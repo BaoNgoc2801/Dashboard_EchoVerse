@@ -6,9 +6,11 @@ import {
     fetchImageDetail,
     fetchComments,
     uploadComment,
+    deleteComment,
     CommentItem,
     ImageDetail,
 } from "@/service/post.service";
+import { Trash2 } from "lucide-react";
 
 const ImageDetailPage = () => {
     const params = useParams();
@@ -37,6 +39,12 @@ const ImageDetailPage = () => {
         }
     };
 
+    const handleDeleteComment = async (commentId: string) => {
+        await deleteComment(commentId);
+        const updatedComments = await fetchComments(id);
+        setComments(updatedComments);
+    };
+
     return (
         <div className="p-6 text-white">
             {image ? (
@@ -62,8 +70,16 @@ const ImageDetailPage = () => {
                                 ) : (
                                     comments.map((cmt) => (
                                         <div key={cmt.id} className="bg-gray-800 p-3 rounded-lg">
-                                            <p className="text-sm font-semibold">{cmt.user?.name || "Unknown"}</p>
-                                            <p className="mt-1">{cmt.text}</p>
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="text-sm font-semibold">{cmt.user?.name || "Unknown"}</p>
+                                                    <p className="text-xs text-gray-400">{cmt.user?.email}</p>
+                                                    <p className="mt-1">{cmt.text}</p>
+                                                </div>
+                                                <button onClick={() => handleDeleteComment(cmt.id)}>
+                                                    <Trash2 className="w-4 h-4 text-red-500 hover:text-red-700" />
+                                                </button>
+                                            </div>
                                         </div>
                                     ))
                                 )}

@@ -21,3 +21,20 @@ export const fetchAllUsers = async (): Promise<UserItem[]> => {
         return [];
     }
 };
+
+
+export const deleteUser = async (userId: number): Promise<boolean> => {
+    try {
+        const token = localStorage.getItem("auth_token");
+        if (!token) throw new Error("No auth token found.");
+
+        const headers = { Authorization: `Bearer ${token}` };
+        const res = await axios.delete(`${process.env.NEXT_PUBLIC_DELETE_USER_API}${userId}`, { headers });
+
+        return res.status === 200;
+    } catch (error: any) {
+        console.error("❌ Delete user failed:", error.response?.data || error.message);
+        return false;
+    }
+};
+

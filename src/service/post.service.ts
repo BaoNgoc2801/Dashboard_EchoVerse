@@ -90,3 +90,13 @@ export const uploadComment = async (
         return false;
     }
 };
+
+export const deleteComment = async (commentId: string): Promise<boolean> => {
+    try {
+        const res = await axios.delete(`${process.env.NEXT_PUBLIC_DELETE_COMMENTS_API}/${commentId}`);
+        return res.status === 200;
+    } catch (error) {
+        console.error("❌ Delete comment failed:", error);
+        return false;
+    }
+};

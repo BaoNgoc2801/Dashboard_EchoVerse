@@ -16,7 +16,7 @@ import { UserSearch } from '@/components/dashboard/user-search';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { fetchAllUsers, UserItem } from '@/service/user.service';
+import { fetchAllUsers, UserItem, deleteUser } from '@/service/user.service';
 import { EditRoleModal } from '@/components/modals/edit-role';
 import { DeleteUserModal } from '@/components/modals/delete-user';
 
@@ -27,7 +27,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [editUserId, setEditUserId] = useState<number | null>(null);
-  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
+  const [deleteUserInfo, setDeleteUserInfo] = useState<UserItem | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,8 +58,19 @@ export default function UsersPage() {
     }
   }, [searchTerm, users]);
 
-  const handleDeleteUser = (userId: number) => {
+  const handleDeleteUser = async (userId: number) => {
+    const success = await deleteUser(userId);
+    if (!success) {
+      toast({
+        title: "Failed to delete user",
+        description: "An error occurred while trying to delete the user.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const updatedUsers = filteredUsers.filter(user => user.id !== userId);
+    setUsers(prev => prev.filter(user => user.id !== userId));
     setFilteredUsers(updatedUsers);
 
     toast({
@@ -103,7 +114,7 @@ export default function UsersPage() {
             <UsersTable
                 users={filteredUsers}
                 onEditUser={setEditUserId}
-                onDeleteUser={setDeleteUserId}
+                onDeleteUser={(user) => setDeleteUserInfo(user)}
             />
           </TabsContent>
         </Tabs>
@@ -115,14 +126,14 @@ export default function UsersPage() {
             />
         )}
 
-        {deleteUserId !== null && (
+        {deleteUserInfo && (
             <DeleteUserModal
                 open={true}
-                username={filteredUsers.find(u => u.id === deleteUserId)?.username || ''}
-                onClose={() => setDeleteUserId(null)}
-                onConfirm={() => {
-                  handleDeleteUser(deleteUserId);
-                  setDeleteUserId(null);
+                username={deleteUserInfo.username}
+                onClose={() => setDeleteUserInfo(null)}
+                onConfirm={async () => {
+                  await handleDeleteUser(deleteUserInfo.id);
+                  setDeleteUserInfo(null);
                 }}
             />
         )}
@@ -133,7 +144,7 @@ export default function UsersPage() {
 interface UsersTableProps {
   users: UserItem[];
   onEditUser: (userId: number) => void;
-  onDeleteUser: (userId: number) => void;
+  onDeleteUser: (user: UserItem) => void;
 }
 
 function UsersTable({ users, onEditUser, onDeleteUser }: UsersTableProps) {
@@ -178,7 +189,7 @@ function UsersTable({ users, onEditUser, onDeleteUser }: UsersTableProps) {
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onDeleteUser(user.id)}
+                            onClick={() => onDeleteUser(user)}
                         >
                           <Trash2 size={16} />
                         </Button>
