@@ -24,7 +24,6 @@ export interface CommentItem {
     };
 }
 
-// Fetch all images/posts
 export const fetchImages = async (): Promise<ImageItem[]> => {
     try {
         const token = localStorage.getItem("auth_token");
@@ -40,7 +39,6 @@ export const fetchImages = async (): Promise<ImageItem[]> => {
     }
 };
 
-// Fetch detail for a single image/post
 export const fetchImageDetail = async (id: string): Promise<ImageDetail | null> => {
     try {
         const token = localStorage.getItem("auth_token");
@@ -74,7 +72,6 @@ export const fetchComments = async (postId: string): Promise<CommentItem[]> => {
     }
 };
 
-// Upload a new comment for an image/post
 export const uploadComments = async (
     id: string,
     text: string,
