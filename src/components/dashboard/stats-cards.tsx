@@ -1,11 +1,10 @@
 "use client";
 
-import { 
+import {
   Users,
   Video,
   FileText,
   Activity,
-  BarChart
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDashboardStats } from "@/lib/data";
@@ -29,7 +28,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
           </p>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Livestreams</CardTitle>
@@ -42,7 +41,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
           </p>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
@@ -55,7 +54,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
           </p>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Platform Activity</CardTitle>

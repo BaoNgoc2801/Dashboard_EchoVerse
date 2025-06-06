@@ -5,21 +5,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AreaChart, BarChart } from '@/components/dashboard/charts';
 import { StatsCards } from '@/components/dashboard/stats-cards';
-import { getDashboardStats } from '@/lib/data';
+import { fetchAllUsers } from "@/service/user.service";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<ReturnType<typeof getDashboardStats> | null>(null);
+  const [stats, setStats] = useState<any>(null); // 👈 sửa lại nếu cần
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call with a small delay
     const fetchData = async () => {
       setIsLoading(true);
-      // In a real app, this would be an API call
-      setTimeout(() => {
-        setStats(getDashboardStats());
-        setIsLoading(false);
-      }, 800);
+
+      const users = await fetchAllUsers();
+      const totalUsers = users.length;
+      const activeUsers = users.filter((u) => u.roles.some(r => r.name === "active")).length;
+
+      setStats({
+        totalUsers,
+        activeUsers,
+        totalLivestreams: 0, // 👈 nếu chưa có API thì giữ 0
+        activeLivestreams: 0,
+        totalPosts: 0,
+        postsPerDay: [],
+        livestreamsPerDay: [],
+      });
+
+      setIsLoading(false);
     };
 
     fetchData();
@@ -45,15 +55,15 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-      
+
       <StatsCards stats={stats} />
-      
+
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
@@ -64,9 +74,9 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pl-2">
-                <AreaChart 
-                  data={stats.postsPerDay} 
-                  xAxisKey="date" 
+                <AreaChart
+                  data={stats.postsPerDay}
+                  xAxisKey="date"
                   yAxisKey="count"
                   categories={["count"]}
                   colors={["chart-1"]}
@@ -74,7 +84,7 @@ export default function DashboardPage() {
                 />
               </CardContent>
             </Card>
-            
+
             <Card className="col-span-3">
               <CardHeader>
                 <CardTitle>Livestream Activity</CardTitle>
@@ -83,9 +93,9 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pl-2">
-                <BarChart 
-                  data={stats.livestreamsPerDay} 
-                  xAxisKey="date" 
+                <BarChart
+                  data={stats.livestreamsPerDay}
+                  xAxisKey="date"
                   yAxisKey="count"
                   categories={["count"]}
                   colors={["chart-2"]}
@@ -95,7 +105,7 @@ export default function DashboardPage() {
             </Card>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="analytics" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-7">
