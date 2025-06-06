@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Heart, MessageSquare, Search, X } from "lucide-react";
+import {  Search, X } from "lucide-react";
 import {
   Tabs,
   TabsContent,
@@ -179,7 +178,7 @@ interface PostsTableProps {
   loadingDetails: boolean;
 }
 
-function PostsTable({ posts, imageDetails, commentCounts, loadingDetails }: PostsTableProps) {
+function PostsTable({ posts, imageDetails, loadingDetails }: PostsTableProps) {
   return (
       <div className="rounded-md border">
         <Table>
@@ -187,8 +186,6 @@ function PostsTable({ posts, imageDetails, commentCounts, loadingDetails }: Post
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Creator</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Engagement</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -201,7 +198,6 @@ function PostsTable({ posts, imageDetails, commentCounts, loadingDetails }: Post
             ) : (
                 posts.map((post) => {
                   const detail = imageDetails[post.id];
-                  const commentCount = commentCounts[post.id] ?? 0;
                   return (
                       <TableRow key={post.id} className="group">
                         <TableCell className="font-medium">
@@ -217,7 +213,7 @@ function PostsTable({ posts, imageDetails, commentCounts, loadingDetails }: Post
                             )}
                             <div>
                               <Link
-                                  href={`/dashboard/posts/${post.id}`}
+                                  href={`/dashboard/posts/image-detail/${post.id}`}
                                   className="font-medium hover:underline line-clamp-1"
                               >
                                 {post.title}
@@ -232,21 +228,7 @@ function PostsTable({ posts, imageDetails, commentCounts, loadingDetails }: Post
                               <span>{detail?.creator?.name || post.creatorId}</span>
                           )}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {format(new Date(), "MMM d, yyyy")}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1">
-                              <Heart size={14} />
-                              <span>0</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MessageSquare size={14} />
-                              <span>{commentCount}</span>
-                            </div>
-                          </div>
-                        </TableCell>
+
                       </TableRow>
                   );
                 })

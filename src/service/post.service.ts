@@ -19,8 +19,10 @@ export interface ImageDetail {
 export interface CommentItem {
     id: string;
     text: string;
+    userId: string; // Thêm dòng này
     user?: {
         name?: string;
+        email?: string; // Thêm dòng này
     };
 }
 
@@ -59,7 +61,7 @@ export const fetchComments = async (postId: string): Promise<CommentItem[]> => {
         const token = localStorage.getItem("auth_token");
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_COMMENTS_API}?postId=${postId}`, { headers });
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_COMMENTS_API}/${postId}`, { headers });
 
         return Array.isArray(res.data?.data) ? res.data.data : [res.data.data];
     } catch (error: any) {
@@ -72,24 +74,19 @@ export const fetchComments = async (postId: string): Promise<CommentItem[]> => {
     }
 };
 
-export const uploadComments = async (
-    id: string,
+export const uploadComment = async (
+    imageId: string,
     text: string,
     userId: string
 ): Promise<boolean> => {
     try {
-        const token = localStorage.getItem("auth_token");
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-        await axios.post(
-            `${process.env.NEXT_PUBLIC_UPLOAD_COMMENTS_API}/${id}`,
-            { text, userId },
-            { headers }
+        const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_UPLOAD_COMMENTS_API}${imageId}`,
+            { text, userId }
         );
-
-        return true;
+        return !!res.data;
     } catch (error) {
-        console.error(`❌ Upload comment error (ID: ${id}):`, error);
+        console.error("❌ Upload comment failed:", error);
         return false;
     }
 };
